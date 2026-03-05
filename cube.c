@@ -42,6 +42,8 @@ ull cube_special_only(Cube *cube) {
 }
 
 int cube_x_count(Cube *cube) {
+    if (cube_eq(cube, &INVALID_CUBE))
+        return -1;
     return __builtin_popcountll(cube_special_only(cube));
 }
 

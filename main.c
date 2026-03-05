@@ -1,5 +1,6 @@
 
 #include <assert.h>
+#include <iso646.h>
 #include <stdio.h>
 #include "rot_operations.h"
 
@@ -130,7 +131,7 @@ int main(void) {
         }
     }
 
-    Set not_E_coveted = set_init(); // not covered by core (L1 in book)
+    Set not_E_covered = set_init(); // not covered by core (L1 in book)
     for (int i = 0; i < L.size; i++) { // not_E_coveted = L#Е
         Set *cubes = set_init_ptr();
         set_add(cubes, L.list[i]);
@@ -147,17 +148,25 @@ int main(void) {
             cubes = cubes_next;
         }
 
-        set_add_all(&not_E_coveted, cubes);
+        set_add_all(&not_E_covered, cubes);
 
         set_free_ptr(cubes);
     }
 
-    Set *for_covering = set_subtract(&Z, &E);
+    Set *not_E = set_subtract(&Z, &E); // Z cubes that not in E (Z^ = Z\E from book)
 
-    // for (int i = 0; i < not_E_coveted.size; i++) {
-    //     for (int i = 0; i < not_E_coveted.size; i++) {
-    //
-    // }
+    Set mdnf = set_init();
+    set_add_all(&mdnf, &E);
+    for (int i = 0; i < not_E_covered.size; i++) { // todo: this actually works? there is not enough info for common solution in book
+        Cube perfect_cube = INVALID_CUBE;
+        for (int j = 0; j < not_E->size; j++) {
+            if (cube_contains(&not_E->list[j], &not_E_covered.list[i])) {
+                perfect_cube = max_related(cube_x_count(&perfect_cube), cube_x_count(&not_E->list[j]), perfect_cube, not_E->list[j]);
+            }
+        }
+        assert(!cube_eq(&perfect_cube, &INVALID_CUBE)); // I think this should never happen
+        set_add(&mdnf, perfect_cube);
+    }
 
     printf("\nZ:\n");
     set_print(&Z);
@@ -165,28 +174,32 @@ int main(void) {
     printf("\nZZZ (z#(Z − z)):\n");
     set_print(&ZZZ);
 
-    printf("\nL:\n");
-    set_print(&L);
+    // printf("\nL:\n");
+    // set_print(&L);
 
     printf("\nE:\n");
     set_print(&E);
 
     printf("\nL_1:\n");
-    set_print(&not_E_coveted);
+    set_print(&not_E_covered);
 
     printf("\nZ^:\n");
-    set_print(for_covering);
+    set_print(not_E);
+
+    printf("\nf_mdnf:\n");
+    set_print(&mdnf);
 
     set_free_ptr(last_A);
     set_free_ptr(last_B);
-    set_free_ptr(for_covering);
+    set_free_ptr(not_E);
 
     set_free(N);
     set_free(L);
     set_free(Z);
     set_free(ZZZ);
     set_free(E);
-    set_free(not_E_coveted);
+    set_free(not_E_covered);
+    set_free(mdnf);
 
     return 0;
 }
@@ -205,3 +218,6 @@ int main(void) {
 11001
 11010
 */
+
+// todo replate eq invalid with separate cube_is_invalid function
+// todo think about making everything with links (*) to make everything equal (without ., only ->)?
