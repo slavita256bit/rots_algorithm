@@ -1,0 +1,52 @@
+#pragma once
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "io.h"
+#include "utils.h"
+
+constexpr ull ALL_CUBE_MASK = UINT64_MAX; // like ... 11 11 11 11
+constexpr ull SPECIAL_MASK = 0xAAAAAAAAAAAAAAAA; // like ... 10 10 10 10
+constexpr ull DEFAULT_MASK = 0x5555555555555555; // like ... 01 01 01 01
+
+/*
+    n = -1 indicates that cube cannot exist
+    For example: two Y's in multiply or 1 union 0
+*/
+struct Cube {
+    int n;
+    ull value; // todo: adapt to inf? variables, currently max is 64/2=32
+};
+typedef struct Cube Cube;
+
+extern Cube INVALID_CUBE;
+
+enum CubeValue {
+    ZERO = 0,
+    ONE = 1,
+    X = 2, // 10
+    Y = 3, // 11
+};
+
+Cube cube_create(int n, ull value);
+Cube cube_copy(Cube *cube);
+
+void cube_set_bit(Cube *cube, int bit, int value);
+int cube_get_bit(Cube *cube, int bit);
+ull cube_n_mask(Cube *cube);
+
+void cube_convert_y2x(Cube *cube);
+ull cube_get_ys(Cube *cube);
+int cube_x_count(Cube *cube);
+
+ull both_default_only_mask(Cube *a, Cube *b);
+ull cube_default_only(Cube *cube);
+ull cube_special_only(Cube *cube);
+
+bool cube_contains(Cube *a, Cube *b);
+bool cube_eq(Cube *a, Cube *b);
+int cube_cost(Cube *cube);
+
+Cube cube_read(int n);
+void cube_print(Cube *cube);
