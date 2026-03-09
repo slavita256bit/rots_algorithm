@@ -45,7 +45,7 @@ bool set_contains(Set *set, Cube cube) {
 }
 
 void set_add(Set *set, Cube cube) {
-    if (cube_eq(&cube, &INVALID_CUBE))
+    if (cube_is_invalid(&cube))
         return;
 
     if (set_contains(set, cube)) // todo optimize
@@ -106,16 +106,16 @@ void set_add_all(Set *to, Set *from) {
         set_add(to, from->list[i]);
 }
 
-Set set_read(int n, int cube_length) {
+Set set_read(FILE *file, int n, int cube_length) {
     Set set = set_init();
     for (int i = 0; i < n; i++)
-        set_add(&set, cube_read(cube_length));
+        set_add(&set, cube_read(file, cube_length));
     return set;
 }
 
-void set_print(Set* set) {
+void set_print(FILE *file, Set* set) {
     for (int i = 0; i < set->size; i++) {
-        cube_print(&set->list[i]);
+        cube_print(file, &set->list[i]);
         printf("\n");
     }
 }

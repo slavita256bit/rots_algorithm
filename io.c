@@ -1,13 +1,16 @@
 #include "io.h"
 
-void flush_input() {
+void flush_input(FILE *file) {
+    if (file != stdin)
+        return;
+
     scanf("%*[^\n]");
     scanf("%*c");
 }
 
-int read_int() {
+int read_int(FILE *file) {
     int x;
-    scanf("%d", &x);
-    flush_input();
+    fscanf(file, "%d", &x);
+    flush_input(file);
     return x;
 }

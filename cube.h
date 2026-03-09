@@ -29,7 +29,8 @@ enum CubeValue {
     Y = 3, // 11
 };
 
-Cube cube_create(int n, ull value);
+Cube cube_create(int n, ull combined_value);
+Cube cube_create_from_int(int n, int value);
 Cube cube_copy(Cube *cube);
 
 void cube_set_bit(Cube *cube, int bit, int value);
@@ -46,7 +47,8 @@ ull cube_special_only(Cube *cube);
 
 bool cube_contains(Cube *a, Cube *b);
 bool cube_eq(Cube *a, Cube *b);
+bool cube_is_invalid(Cube *a);
 int cube_cost(Cube *cube);
 
-Cube cube_read(int n);
-void cube_print(Cube *cube);
+Cube cube_read(FILE *file, int n);
+void cube_print(FILE *file, Cube *cube);

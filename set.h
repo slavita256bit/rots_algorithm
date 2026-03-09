@@ -17,8 +17,8 @@ Set* set_init_ptr();
 Set set_init_with(Cube cube);
 Set* set_copy(Set *set);
 
-Set set_read(int n, int cube_length);
-void set_print(Set* set);
+Set set_read(FILE *file, int n, int cube_length);
+void set_print(FILE *file, Set* set);
 
 Set* set_union(Set *a, Set *b);
 bool set_contains(Set *set, Cube cube);
