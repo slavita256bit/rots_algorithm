@@ -14,7 +14,7 @@ int main(void) {
     // set_free_ptr(mdnf);
 
     srand(time(nullptr));
-    int tests_count = 1;
+    int tests_count = 100;
     while (tests_count--) {
         generate_test("tests/generated_test.txt");
         Set *mdnf = rots_algorithm("tests/generated_test.txt");

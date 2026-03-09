@@ -39,7 +39,7 @@ bool verify_function(const char *filename, Set *optimized_function) {
 
 void generate_test(const char *filename) {
     FILE *file = fopen(filename, "w");
-    int cube_length = random_number(8, 8); // todo test on bigger values after optimizations (or cutting max combinations)
+    int cube_length = random_number(2, 10); // todo test on bigger values after optimizations (or cutting max combinations)
     int combinations = (1 << cube_length);
     int l_and_n_len = random_number(0, combinations - 1);
     int l_len = random_number(0, l_and_n_len);
