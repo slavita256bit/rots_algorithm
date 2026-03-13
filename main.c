@@ -34,4 +34,5 @@ int main(void) {
     return 0;
 }
 
+// todo implement on zero values
 // todo Set operations in Ci*Ci is the bottleneck for big tests
