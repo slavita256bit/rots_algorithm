@@ -38,8 +38,8 @@ Set* rots_algorithm(const char *filename) {
                 // cube_print(&cube);
                 cube_convert_y2x(&cube);
 
-                if (!cube_is_invalid(&cube) && cube_x_count(&cube) == iterations + 1) { // todo cube_x_count(&cube) == iterations + 1 was not mention in book, think about why
-                        used[i] = used[j] = true;
+                if (!cube_is_invalid(&cube) && cube_x_count(&cube) > max(cube_x_count(&C->list[i]), cube_x_count(&C->list[j]))) {
+                    used[i] = used[j] = true;
                     set_add(A, cube);
                 }
             }
@@ -124,7 +124,7 @@ Set* rots_algorithm(const char *filename) {
                     break;
                 }
             }
-            assert(found_related); // I think this should never happen
+            assert(found_related);
         }
     }
 
@@ -152,18 +152,31 @@ Set* rots_algorithm(const char *filename) {
 
     Set *not_E = set_subtract(&Z, &E); // Z cubes that not in E (Z^ = Z\E from book)
 
-    Set* mdnf = set_init_ptr();
-    set_add_all(mdnf, &E);
-    for (int i = 0; i < not_E_covered.size; i++) { // todo: this actually works? there is not enough info for common solution in book
-        Cube perfect_cube = INVALID_CUBE;
-        for (int j = 0; j < not_E->size; j++) {
-            if (cube_contains(&not_E->list[j], &not_E_covered.list[i])) { // todo maybe optimize with pre-sorted by X count not_E
-                perfect_cube = max_related(cube_x_count(&perfect_cube), cube_x_count(&not_E->list[j]), perfect_cube, not_E->list[j]);
-            }
-        }
-        assert(!cube_is_invalid(&perfect_cube)); // I think this should never happen
-        set_add(mdnf, perfect_cube);
-    }
+    Set* min_function = set_init_ptr();
+    set_add_all(min_function, &E);
+
+    // bad algorithm
+    // for (int i = 0; i < not_E_covered.size; i++) { // this actually works? there is not enough info for common solution in book
+    //     Cube perfect_cube = INVALID_CUBE;
+    //     for (int j = 0; j < not_E->size; j++) {
+    //         if (cube_contains(&not_E->list[j], &not_E_covered.list[i])) { // maybe optimize with pre-sorted by X count not_E
+    //             perfect_cube = max_related(cube_x_count(&perfect_cube), cube_x_count(&not_E->list[j]), perfect_cube, not_E->list[j]);
+    //         }
+    //     }
+    //     assert(!cube_is_invalid(&perfect_cube));
+    //     set_add(mdnf, perfect_cube);
+    // }
+
+    // my idea instead of IF algorithm
+    // last step - covering L1 (not_E_covered) with some Z^ (not_E)
+
+    // todo: different approach:
+    // graph of cubes "dependencies" will form a tree -> we can create dp (dfs) that will cover optimally
+    // dont forget about cost, not only count
+
+    Set* dead_end = dead_ends_finding_bruteforce(not_E, not_E_covered);
+
+    set_add_all(min_function, dead_end);
 
 #ifdef DEBUG
     printf("\nZ:\n");
@@ -185,12 +198,13 @@ Set* rots_algorithm(const char *filename) {
     set_print(not_E);
 
     printf("\nf_mdnf:\n");
-    set_print(mdnf);
+    set_print(min_function);
 #endif
 
     set_free_ptr(last_A);
     set_free_ptr(last_B);
     set_free_ptr(not_E);
+    set_free_ptr(dead_end);
 
     set_free(N);
     set_free(L);
@@ -199,7 +213,47 @@ Set* rots_algorithm(const char *filename) {
     set_free(E);
     set_free(not_E_covered);
 
-    return mdnf;
+    return min_function;
 }
 
-// todo think about making everything with links (*) to make everything equal (without ., only ->)?
+Set* dead_ends_finding_bruteforce(Set *not_E, Set not_E_covered) {
+    // meet-in-the-middle can be implemented for x2 performance
+    int min_cost = INT32_MAX;
+    Set* dead_end = nullptr;
+    for (ull mask = 0; mask < (1ull << not_E->size); mask++) {
+        Set* selected = set_init_ptr();
+        int cost = 0;
+
+        for (int i = 0; i < not_E->size; i++) {
+            if (mask & (1ull << i)) {
+                cost += cube_cost(&not_E->list[i]) + 1;
+                set_add(selected, not_E->list[i]);
+            }
+        }
+
+        bool not_covering = false;
+        for (int i = 0; i < not_E_covered.size; i++) {
+            if (!set_contains(selected, not_E_covered.list[i])) {
+                not_covering = true;
+                break;
+            }
+        }
+
+        if (not_covering)
+            continue;
+
+        if (min_cost >= cost) {
+            min_cost = cost;
+            set_free_ptr(dead_end);
+            dead_end = selected;
+        } else {
+            set_free_ptr(selected);
+        }
+    }
+    // todo print all minimal dead ends?
+
+    return dead_end;
+}
+
+// todo tables output for course project
+// todo think about making everything with links (*) to make everything equal (without ., only ->)? or make everything with dots

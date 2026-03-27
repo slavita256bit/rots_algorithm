@@ -1,4 +1,5 @@
 #include "checker.h"
+#define MAX_COMBINATIONS_COUNT 100
 
 bool verify_function(const char *filename, Set *optimized_function) {
     FILE *file = fopen(filename, "r");
@@ -9,7 +10,7 @@ bool verify_function(const char *filename, Set *optimized_function) {
 
     bool result = true;
 
-    printf("%-*s | F | MDNF\n", cube_length, "X");
+    printf("%-*s | F | OPTIMIZED\n", cube_length, "X");
 
     int combinations = (1 << cube_length);
     for (int i = 0; i < combinations; i++) {
@@ -41,7 +42,7 @@ void generate_test(const char *filename) {
     FILE *file = fopen(filename, "w");
     int cube_length = random_number(2, 10); // todo test on bigger values after optimizations (or cutting max combinations)
     int combinations = (1 << cube_length);
-    int l_and_n_len = random_number(0, combinations - 1);
+    int l_and_n_len = random_number(0, min(MAX_COMBINATIONS_COUNT, combinations - 1));
     int l_len = random_number(0, l_and_n_len);
     int n_len = l_and_n_len - l_len;
     int *L_and_N = random_not_eq(l_and_n_len, 0, combinations - 1);
@@ -62,4 +63,8 @@ void generate_test(const char *filename) {
 
     free(L_and_N);
     fclose(file);
+}
+
+void generate_test_with_x(const char *filename) {
+    //todo
 }

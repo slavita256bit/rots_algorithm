@@ -37,6 +37,7 @@ void set_free_ptr(Set *set) {
 }
 
 // todo: think about faster approach
+// todo idea: implement this with # operation (this approach can also make main algo shorter (if we will give some feedback))
 bool set_contains(Set *set, Cube cube) {
     for (int i = 0; i < set->size; i++)
         if (cube_contains(&set->list[i], &cube))

@@ -5,8 +5,9 @@
 #include "rots_algorithm.h"
 
 int main(void) {
-    // Set *mdnf = rots_algorithm("tests/test1.txt");
-    // bool correct = verify_function("tests/test1.txt", mdnf);
+    // const char *test_filename = "tests/test1.txt";
+    // Set *mdnf = rots_algorithm(test_filename);
+    // bool correct = verify_function(test_filename, mdnf);
     //
     // if (correct) printf("Correct!\n");
     // else printf("Truth tables are not the same!\n");
@@ -33,6 +34,8 @@ int main(void) {
 
     return 0;
 }
+
+// todo make webui
 
 // todo implement on zero values
 // todo Set operations in Ci*Ci is the bottleneck for big tests
