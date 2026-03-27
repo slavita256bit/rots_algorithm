@@ -21,4 +21,6 @@ add_executable(rots_algorithm main.c
         rots_algorithm.h
         checker.c
         checker.h
+        dead_ends_finding.c
+        dead_ends_finding.h
 )
