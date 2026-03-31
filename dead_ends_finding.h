@@ -1,5 +1,5 @@
-#include "set.h"
 #pragma once
+#include "cubeset.h"
 
-Set* dead_ends_finding_tree(Set *not_E, Set not_E_covered);
-Set* dead_ends_finding_bruteforce(Set *not_E, Set not_E_covered);
+Cubeset dead_ends_finding_tree(Cubeset not_E, Cubeset not_E_covered);
+Cubeset dead_ends_finding_bruteforce(Cubeset not_E, Cubeset not_E_covered);

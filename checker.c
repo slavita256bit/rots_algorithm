@@ -1,11 +1,11 @@
 #include "checker.h"
-#define MAX_COMBINATIONS_COUNT 100
+#define MAX_COMBINATIONS_COUNT 24
 
-bool verify_function(const char *filename, Set *optimized_function) {
+bool verify_function(const char *filename, Cubeset optimized_function) {
     FILE *file = fopen(filename, "r");
     int cube_length = read_int(file);
-    Set L = set_read(file, read_int(file), cube_length);
-    Set N = set_read(file, read_int(file), cube_length);
+    Cubeset L = cubeset_read(file, read_int(file), cube_length);
+    Cubeset N = cubeset_read(file, read_int(file), cube_length);
     fclose(file);
 
     bool result = true;
@@ -15,12 +15,12 @@ bool verify_function(const char *filename, Set *optimized_function) {
     int combinations = (1 << cube_length);
     for (int i = 0; i < combinations; i++) {
         Cube cube = cube_create_from_int(cube_length, i);
-        cube_print(stdout, &cube);
+        cube_print(stdout, cube);
 
-        bool correct_value = set_contains(&L, cube);
-        bool is_any = set_contains(&N, cube);
+        bool correct_value = cubeset_contains(L, cube);
+        bool is_any = cubeset_contains(N, cube);
 
-        bool optimized_value = set_contains(optimized_function, cube);
+        bool optimized_value = cubeset_contains(optimized_function, cube);
 
         printf(" | %c | %d\n", (is_any ? '*' : (correct_value ? '1' : '0')), optimized_value);
 
@@ -28,8 +28,8 @@ bool verify_function(const char *filename, Set *optimized_function) {
             result = false;
     }
 
-    printf("\noptimized_function (%d):\n", optimized_function->size);
-    set_print(stdout, optimized_function);
+    printf("\noptimized_function (%d):\n", size(optimized_function));
+    cubeset_print(stdout, optimized_function);
     printf("\n");
 
     set_free(L);
@@ -51,13 +51,13 @@ void generate_test(const char *filename) {
     fprintf(file, "%d\n", l_len);
     for (int i = 0; i < l_len; i++) {
         Cube cube = cube_create_from_int(cube_length, L_and_N[i]);
-        cube_print(file, &cube);
+        cube_print(file, cube);
         fprintf(file, "\n");
     }
     fprintf(file, "%d\n", n_len);
     for (int i = 0; i < n_len; i++) {
         Cube cube = cube_create_from_int(cube_length, L_and_N[i + l_len]);
-        cube_print(file, &cube);
+        cube_print(file, cube);
         fprintf(file, "\n");
     }
 

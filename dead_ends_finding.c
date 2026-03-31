@@ -1,34 +1,35 @@
 #include "dead_ends_finding.h"
 
-// graph of cubes "dependencies" will form a tree -> we can create dp (dfs) that will cover optimally
+// graph of cubes "dependencies" will form a directed graph without cycles -> we can do something
+// may be use gray code to project cubes as several segments on gray array
 // dont forget about cost, not only count
-Set* dead_ends_finding_tree(Set *not_E, Set not_E_covered) {
-    Set* dead_end = nullptr;
+Cubeset dead_ends_finding_tree(Cubeset not_E, Cubeset not_E_covered) {
+    Cubeset dead_end = EMPTY_SET;
 
-    //todo
+    // todo implement
 
     return dead_end;
 }
 
 // just bruteforcing all combinations instead of if algorithm
-Set* dead_ends_finding_bruteforce(Set *not_E, Set not_E_covered) {
+Cubeset dead_ends_finding_bruteforce(Cubeset not_E, Cubeset not_E_covered) {
     // meet-in-the-middle can be implemented for x2 performance
     int min_cost = INT32_MAX;
-    Set* dead_end = nullptr;
-    for (ull mask = 0; mask < (1ull << not_E->size); mask++) {
-        Set* selected = set_init_ptr();
+    Cubeset dead_end = EMPTY_SET;
+    for (ull mask = 0; mask < (1ull << size(not_E)); mask++) {
+        Cubeset selected = EMPTY_SET;
         int cost = 0;
 
-        for (int i = 0; i < not_E->size; i++) {
+        for (int i = 0; i < size(not_E); i++) {
             if (mask & (1ull << i)) {
-                cost += cube_cost(&not_E->list[i]) + 1;
-                set_add(selected, not_E->list[i]);
+                cost += cube_cost(not_E[i]) + 1;
+                cubeset_add(selected, not_E[i]);
             }
         }
 
         bool not_covering = false;
-        for (int i = 0; i < not_E_covered.size; i++) {
-            if (!set_contains(selected, not_E_covered.list[i])) {
+        for (int i = 0; i < size(not_E_covered); i++) {
+            if (!cubeset_contains(selected, not_E_covered[i])) {
                 not_covering = true;
                 break;
             }
@@ -39,10 +40,10 @@ Set* dead_ends_finding_bruteforce(Set *not_E, Set not_E_covered) {
 
         if (min_cost >= cost) {
             min_cost = cost;
-            set_free_ptr(dead_end);
+            set_free(dead_end);
             dead_end = selected;
         } else {
-            set_free_ptr(selected);
+            set_free(selected);
         }
     }
     // todo print all minimal dead ends?

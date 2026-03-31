@@ -16,41 +16,39 @@ Cube cube_create_from_int(int n, int value) {
     return (Cube){n, combined_value};
 }
 
-Cube cube_copy(Cube *cube) {
-    return (Cube){cube->n, cube->value};
-}
-
-void cube_convert_y2x(Cube *cube) {
+Cube cube_convert_y2x(Cube cube) {
     ull y = cube_get_ys(cube);
 
-    cube->value ^= y;
-    cube->value |= y << 1;
+    cube.value ^= y;
+    cube.value |= y << 1;
+
+    return cube;
 }
 
-ull both_default_only_mask(Cube *a, Cube *b) {
+ull both_default_only_mask(Cube a, Cube b) {
     return (DEFAULT_MASK ^ ((cube_special_only(a) | cube_special_only(b)) >> 1)) & cube_n_mask(a);
 }
 
-ull cube_n_mask(Cube *cube) {
-    return (ALL_CUBE_MASK << (cube->n * 2)) ^ ALL_CUBE_MASK;
+ull cube_n_mask(Cube cube) {
+    return (ALL_CUBE_MASK << (cube.n * 2)) ^ ALL_CUBE_MASK;
 }
 
 /*
 output Y in on default positions
 */
-ull cube_get_ys(Cube *cube) {
-    return ((cube->value & DEFAULT_MASK) & ((cube->value & SPECIAL_MASK) >> 1));
+ull cube_get_ys(Cube cube) {
+    return ((cube.value & DEFAULT_MASK) & ((cube.value & SPECIAL_MASK) >> 1));
 }
 
-ull cube_default_only(Cube *cube) {
-    return (cube->value & DEFAULT_MASK) & ((SPECIAL_MASK ^ cube_special_only(cube)) >> 1);
+ull cube_default_only(Cube cube) {
+    return (cube.value & DEFAULT_MASK) & ((SPECIAL_MASK ^ cube_special_only(cube)) >> 1);
 }
 
-ull cube_special_only(Cube *cube) {
-    return (cube->value & SPECIAL_MASK);
+ull cube_special_only(Cube cube) {
+    return (cube.value & SPECIAL_MASK);
 }
 
-int cube_x_count(Cube *cube) {
+int cube_x_count(Cube cube) {
     if (cube_is_invalid(cube))
         return -1;
     return __builtin_popcountll(cube_special_only(cube));
@@ -62,8 +60,8 @@ void cube_set_bit(Cube *cube, int bit, int value) {
     cube->value |= (value << bit);
 }
 
-int cube_get_bit(Cube *cube, int bit) {
-    return (int)((cube->value >> (bit * 2ull)) & 3ull);
+int cube_get_bit(Cube cube, int bit) {
+    return (int)((cube.value >> (bit * 2ull)) & 3ull);
 }
 
 Cube cube_read(FILE *file, int n) {
@@ -86,8 +84,8 @@ Cube cube_read(FILE *file, int n) {
     return result;
 }
 
-void cube_print(FILE *file, Cube *cube) {
-    for (int i = 0; i < cube->n; i++) {
+void cube_print(FILE *file, Cube cube) {
+    for (int i = 0; i < cube.n; i++) {
         int bit = cube_get_bit(cube, i);
         switch (bit) {
             case Y: fprintf(file, "y"); break;
@@ -97,12 +95,12 @@ void cube_print(FILE *file, Cube *cube) {
     }
 }
 
-int cube_cost(Cube *cube) {
-    return cube->n - cube_x_count(cube);
+int cube_cost(Cube cube) {
+    return cube.n - cube_x_count(cube);
 }
 
-// a contains b
-bool cube_contains(Cube *a, Cube *b) {
+// is a contains b
+bool cube_contains(Cube a, Cube b) {
     ull special_a = cube_special_only(a);
     ull special_b = cube_special_only(b);
     if ((special_a | special_b) != special_a)
@@ -118,12 +116,12 @@ bool cube_contains(Cube *a, Cube *b) {
     return true;
 }
 
-bool cube_eq(Cube *a, Cube *b) {
-    return a->n == b->n && a->value == b->value;
+bool cube_eq(Cube a, Cube b) {
+    return a.n == b.n && a.value == b.value;
 }
 
-bool cube_is_invalid(Cube *a) {
-    return cube_eq(a, &INVALID_CUBE);
+bool cube_is_invalid(Cube a) {
+    return cube_eq(a, INVALID_CUBE);
 }
 
 // todo make everything inline
