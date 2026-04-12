@@ -23,6 +23,8 @@ Cubeset cubeset_init_with(Cube cube);
 Cubeset cubeset_read(FILE *file, int n, int cube_length);
 void cubeset_print(FILE *file, Cubeset set);
 
+bool cubeset_contains(Cubeset set, Cube cube);
+
+void cubeset_sort(Cubeset set);
 Cubeset cubeset_subtract(Cubeset a, Cubeset b);
 Cubeset cubeset_union(Cubeset a, Cubeset b);
-bool cubeset_contains(Cubeset set, Cube cube);

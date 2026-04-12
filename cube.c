@@ -17,6 +17,9 @@ Cube cube_create_from_int(int n, int value) {
 }
 
 Cube cube_convert_y2x(Cube cube) {
+    if (cube_is_invalid(cube))
+        return INVALID_CUBE;
+
     ull y = cube_get_ys(cube);
 
     cube.value ^= y;
@@ -124,4 +127,4 @@ bool cube_is_invalid(Cube a) {
     return cube_eq(a, INVALID_CUBE);
 }
 
-// todo make everything inline
+// everything can be made inline and a bit more optimal, but this code is quite readable

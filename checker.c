@@ -10,19 +10,19 @@ bool verify_function(const char *filename, Cubeset optimized_function) {
 
     bool result = true;
 
-    printf("%-*s | F | OPTIMIZED\n", cube_length, "X");
+    // printf("%-*s | F | OPTIMIZED\n", cube_length, "X");
 
     int combinations = (1 << cube_length);
     for (int i = 0; i < combinations; i++) {
         Cube cube = cube_create_from_int(cube_length, i);
-        cube_print(stdout, cube);
+        // cube_print(stdout, cube); //todo print in debug mode
 
         bool correct_value = cubeset_contains(L, cube);
         bool is_any = cubeset_contains(N, cube);
 
         bool optimized_value = cubeset_contains(optimized_function, cube);
 
-        printf(" | %c | %d\n", (is_any ? '*' : (correct_value ? '1' : '0')), optimized_value);
+        // printf(" | %c | %d\n", (is_any ? '*' : (correct_value ? '1' : '0')), optimized_value);
 
         if (!is_any && optimized_value != correct_value)
             result = false;
@@ -66,5 +66,5 @@ void generate_test(const char *filename) {
 }
 
 void generate_test_with_x(const char *filename) {
-    //todo
+    //todo generator
 }

@@ -4,6 +4,7 @@ project(rots_algorithm C)
 set(CMAKE_C_STANDARD 23)
 
 add_compile_options(-DDEBUG)
+add_compile_options(-DEXPORT_DATA)
 add_compile_definitions(__STDC_WANT_LIB_EXT1__=1)
 
 add_executable(rots_algorithm main.c
@@ -25,4 +26,6 @@ add_executable(rots_algorithm main.c
         checker.h
         dead_ends_finding.c
         dead_ends_finding.h
+        export.c
+        export.h
 )

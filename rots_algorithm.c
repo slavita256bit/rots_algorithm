@@ -1,8 +1,11 @@
 #include "rots_algorithm.h"
 #include <assert.h>
 #include <stdio.h>
+#include <time.h>
 
-Cubeset rots_algorithm(const char *filename) {
+#include "export.h"
+
+Cubeset* rots_algorithm(const char *filename) {
     FILE *file = fopen(filename, "r");
 
     // printf("Write variables count (<=32): ");
@@ -23,7 +26,9 @@ Cubeset rots_algorithm(const char *filename) {
     Cubeset last_A = EMPTY_SET; set_clone(last_A, L);
     Cubeset last_B = EMPTY_SET; set_clone(last_B, N);
 
-    int iterations = 0;
+    int iteration = 0;
+
+    time_t now = time(nullptr);
     while (!is_empty(last_A)) {
         Cubeset C = cubeset_union(last_A, last_B);
         Cubeset A = EMPTY_SET; // cubes multiplied
@@ -31,42 +36,63 @@ Cubeset rots_algorithm(const char *filename) {
 
         bool *used = calloc(size(C), sizeof(bool));
 
+#ifdef EXPORT_DATA
+        Cubeset** export_ci = init_export_data(size(C));
+#endif
         // printf("{===== %d", iterations);
         for (int i = 0; i < size(C); i++) { // Ci * Ci
             for (int j = i + 1; j < size(C); j++) {
                 Cube cube = rot_multiply(C[i], C[j]);
                 // printf("\n");
                 // cube_print(&cube);
+
+                if (__builtin_popcountll(cube_get_ys(cube)) > 1) cube = INVALID_CUBE;
+
+#ifdef EXPORT_DATA
+                if (!cube_is_invalid(cube)) set_push_force(export_ci[j][i], cube);
+#endif
+
                 cube = cube_convert_y2x(cube);
 
                 if (!cube_is_invalid(cube) && cube_x_count(cube) > max(cube_x_count(C[i]), cube_x_count(C[j]))) {
                     used[i] = used[j] = true;
                     cubeset_add(A, cube);
+
+#ifdef EXPORT_DATA
+                    set_push_force(export_ci[size(C)][i], cube);
+#endif
                 }
             }
         }
         // printf("\n}===== %d", iterations);
 
-        for (int i = 0; i < size(C); i++)
-            if (!used[i])
+        for (int i = 0; i < size(C); i++) {
+            if (!used[i]) {
                 cubeset_add(Z_i, C[i]);
+            }
+        }
+
+#ifdef EXPORT_DATA
+        export_csv(C, export_ci, filename, iteration, &now, "_ci*ci_", "Ci*Ci", "Ai");
+        export_data_free(export_ci, size(C));
+#endif
 
         Cubeset B = cubeset_subtract(C, Z_i); // cubes left
 
         cubeset_add_all(Z, Z_i);
 
 #ifdef DEBUG
-        printf("\nC%d:\n", iterations);
+        printf("\nC%d:\n", iteration);
         cubeset_print(stdout, C);
-        printf("\nZ%d:\n", iterations);
+        printf("\nZ%d:\n", iteration);
         cubeset_print(stdout, Z_i);
-        printf("\nA%d:\n", iterations + 1);
+        printf("\nA%d:\n", iteration + 1);
         cubeset_print(stdout, A);
-        printf("\nB%d:\n", iterations + 1);
+        printf("\nB%d:\n", iteration + 1);
         cubeset_print(stdout, B);
 #endif
 
-        iterations++;
+        iteration++;
 
         set_free(last_A);
         set_free(last_B);
@@ -77,6 +103,10 @@ Cubeset rots_algorithm(const char *filename) {
         set_free(Z_i);
         free(used);
     }
+
+#ifdef EXPORT_DATA
+    Cubeset** export_z = init_export_data(size(Z));
+#endif
 
     Cubeset ZZZ = EMPTY_SET;
 
@@ -95,14 +125,27 @@ Cubeset rots_algorithm(const char *filename) {
                 set_free(result);
             }
 
+#ifdef EXPORT_DATA
+            set_clone(export_z[j][i], cubes_next);
+#endif
+
             set_free(cubes);
             cubes = cubes_next;
         }
 
         cubeset_add_all(ZZZ, cubes);
 
+#ifdef EXPORT_DATA
+        set_clone(export_z[size(Z)][i], cubes);
+#endif
+
         set_free(cubes);
     }
+
+#ifdef EXPORT_DATA
+    export_csv(Z, export_z, filename, iteration, &now, "_ZZZ_", "z#(Z − z)", "ost");
+    export_data_free(export_z, size(Z));
+#endif
 
     Cubeset E = EMPTY_SET; // core of the function
     for (int i = 0; i < size(ZZZ); i++) { // E = ZZZ ∩ L
@@ -118,7 +161,7 @@ Cubeset rots_algorithm(const char *filename) {
 
         if (cube_is_core) {
             bool found_related = false;
-            for (int j = 0; j < size(Z); j++) { // finding Z cube that related to this | todo maybe not optimal? Z cubes and ZZZ should be linked? | todo optimize
+            for (int j = 0; j < size(Z); j++) { // finding Z cube that related to this | todo maybe not optimal? Z cubes and ZZZ should be linked? | todo optimize (+think about can one cube contain two links or not)
                 if (cube_contains(Z[j], ZZZ[i])) {
                     cubeset_add(E, Z[j]);
                     found_related = true;
@@ -153,9 +196,6 @@ Cubeset rots_algorithm(const char *filename) {
 
     Cubeset not_E = cubeset_subtract(Z, E); // Z cubes that not in E (Z^ = Z\E from book)
 
-    Cubeset min_function = EMPTY_SET;
-    cubeset_add_all(min_function, E);
-
     // bad algorithm
     // for (int i = 0; i < not_E_covered.size; i++) { // this actually works? there is not enough info for common solution in book
     //     Cube perfect_cube = INVALID_CUBE;
@@ -171,10 +211,12 @@ Cubeset rots_algorithm(const char *filename) {
     // my idea instead of IF algorithm
     // last step - covering L1 (not_E_covered) with some Z^ (not_E)
 
-    Cubeset dead_end = dead_ends_finding_bruteforce(not_E, not_E_covered);
+    Cubeset* dead_ends = dead_ends_finding_bruteforce(not_E, not_E_covered);
     // Set* dead_end = dead_ends_finding_tree(not_E, not_E_covered); // make bool arg for this
 
-    cubeset_add_all(min_function, dead_end);
+    for (int i = 0; i < size(dead_ends); i++) {
+        cubeset_add_all(dead_ends[i], E);
+    }
 
 #ifdef DEBUG
     printf("\nZ:\n");
@@ -195,14 +237,13 @@ Cubeset rots_algorithm(const char *filename) {
     printf("\nZ^:\n");
     cubeset_print(stdout, not_E);
 
-    printf("\nf_mdnf:\n");
-    cubeset_print(stdout, min_function);
+    // printf("\nf_mdnf:\n");
+    // cubeset_print(stdout, min_function);
 #endif
 
     set_free(last_A);
     set_free(last_B);
     set_free(not_E);
-    set_free(dead_end);
     set_free(N);
     set_free(L);
     set_free(Z);
@@ -210,7 +251,7 @@ Cubeset rots_algorithm(const char *filename) {
     set_free(E);
     set_free(not_E_covered);
 
-    return min_function;
+    return dead_ends;
 }
 
 // todo tables output for course project

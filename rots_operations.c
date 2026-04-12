@@ -16,8 +16,6 @@ Cube rot_multiply(Cube a, Cube b) {
     ull somes_b = (special_b >> 1) & default_a;
 
     ull y = ((default_a ^ default_b) & (((special_a | special_b) ^ SPECIAL_MASK) >> 1));
-    if (__builtin_popcountll(y) > 1)
-        return INVALID_CUBE;
     y = ((y << 1) | y);
 
     ull just = default_a & default_b;
