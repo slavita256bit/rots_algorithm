@@ -20,17 +20,17 @@ typedef struct Header Header;
 
 #define set_push_force(set, x)                                                          \
     do {                                                                                \
-        if (set == EMPTY_SET) {                                                         \
-            Header *header = malloc(sizeof(*set) * MIN_CAPACITY + sizeof(Header));      \
+        if ((set) == EMPTY_SET) {                                                         \
+            Header *header = malloc(sizeof(*(set)) * MIN_CAPACITY + sizeof(Header));      \
             header->size = 0;                                                           \
             header->capacity = MIN_CAPACITY;                                            \
-            set = (void*)(header + 1);                                                  \
+            (set) = (void*)(header + 1);                                                  \
         }                                                                               \
-        Header *header = get_header(set);                                               \
+        Header *header = get_header((set));                                               \
         if (header->size >= header->capacity) {                                         \
             header->capacity *= 2;                                                      \
-            header = realloc(header, sizeof(*set) * header->capacity + sizeof(Header)); \
-            set = (void*)(header + 1);                                                  \
+            header = realloc(header, sizeof(*(set)) * header->capacity + sizeof(Header)); \
+            (set) = (void*)(header + 1);                                                  \
         }                                                                               \
         (set)[header->size++] = (x);                                                    \
     } while(0)

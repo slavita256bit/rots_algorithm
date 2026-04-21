@@ -7,7 +7,7 @@
 
 int main(void) {
 #ifdef HAND_TESTING
-    const char *test_filename = "tests/test5.txt";
+    const char *test_filename = "tests/rots.txt";
     Cubeset* dead_ends = rots_algorithm(test_filename);
 
     for (int i = 0; i < size(dead_ends); i++) {

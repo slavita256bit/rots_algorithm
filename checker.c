@@ -1,11 +1,12 @@
 #include "checker.h"
-#define MAX_COMBINATIONS_COUNT 24
+#include "set.h"
 
 bool verify_function(const char *filename, Cubeset optimized_function) {
     FILE *file = fopen(filename, "r");
     int cube_length = read_int(file);
     Cubeset L = cubeset_read(file, read_int(file), cube_length);
     Cubeset N = cubeset_read(file, read_int(file), cube_length);
+    char** var_names = var_names_read(file, cube_length);
     fclose(file);
 
     bool result = true;
@@ -29,11 +30,17 @@ bool verify_function(const char *filename, Cubeset optimized_function) {
     }
 
     printf("\noptimized_function (%d):\n", size(optimized_function));
-    cubeset_print(stdout, optimized_function);
+    for (int i = 0; i < size(optimized_function); i++) {
+        cube_print(stdout, optimized_function[i], var_names);
+        printf("\n");
+    }
     printf("\n");
 
     set_free(L);
     set_free(N);
+    for (int i = 0; i < size(var_names); i++)
+        free(var_names[i]);
+    set_free(var_names);
 
     return result;
 }
@@ -51,13 +58,13 @@ void generate_test(const char *filename) {
     fprintf(file, "%d\n", l_len);
     for (int i = 0; i < l_len; i++) {
         Cube cube = cube_create_from_int(cube_length, L_and_N[i]);
-        cube_print(file, cube);
+        cube_print(file, cube, NULL);
         fprintf(file, "\n");
     }
     fprintf(file, "%d\n", n_len);
     for (int i = 0; i < n_len; i++) {
         Cube cube = cube_create_from_int(cube_length, L_and_N[i + l_len]);
-        cube_print(file, cube);
+        cube_print(file, cube, NULL);
         fprintf(file, "\n");
     }
 

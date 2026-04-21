@@ -84,15 +84,17 @@ Cubeset cubeset_subtract(Cubeset a, Cubeset b) {
 Cubeset cubeset_read(FILE *file, int n, int cube_length) {
     Cubeset set = EMPTY_SET;
 
-    for (int i = 0; i < n; i++)
-        cubeset_add(set, cube_read(file, cube_length));
+    for (int i = 0; i < n; i++) {
+        Cube cube = cube_read(file, cube_length);
+        cubeset_add(set, cube);
+    }
 
     return set;
 }
 
 void cubeset_print(FILE *file, Cubeset set) {
     for (int i = 0; i < size(set); i++) {
-        cube_print(file, set[i]);
+        cube_print(file, set[i], NULL);
         printf("\n");
     }
 }

@@ -1,4 +1,6 @@
 #include "cube.h"
+#include "set.h"
+#include "colors.h"
 
 Cube INVALID_CUBE = {-1, 0};
 
@@ -87,7 +89,8 @@ Cube cube_read(FILE *file, int n) {
     return result;
 }
 
-void cube_print(FILE *file, Cube cube) {
+// names - set of strings of vars with length of cube length (NULL if not needed)
+void cube_print(FILE *file, Cube cube, char** var_names) {
     for (int i = 0; i < cube.n; i++) {
         int bit = cube_get_bit(cube, i);
         switch (bit) {
@@ -95,6 +98,21 @@ void cube_print(FILE *file, Cube cube) {
             case X: fprintf(file, "x"); break;
             default: fprintf(file, "%d", bit); break;
         }
+    }
+
+    if (!is_empty(var_names)) {
+        printf(" " BLUB "(" RESET);
+        for (int j = 0; j < cube.n; j++) {
+            CubeValue bit = cube_get_bit(cube, j);
+            if (bit == X) continue;
+
+            if (cube_get_bit(cube, j)) printf(BLK WHTB);
+            else printf(WHT BLKB);
+
+            printf("%s" RESET, var_names[j]);
+            printf(BLUB " " RESET);
+        }
+        printf(BLUB ")" RESET);
     }
 }
 

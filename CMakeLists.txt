@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 23)
 
 add_compile_options(-DDEBUG)
 add_compile_options(-DEXPORT_DATA)
-add_compile_definitions(__STDC_WANT_LIB_EXT1__=1)
+#add_compile_definitions(__STDC_WANT_LIB_EXT1__=1)
 
 add_executable(rots_algorithm main.c
         cube.c
@@ -28,4 +28,5 @@ add_executable(rots_algorithm main.c
         dead_ends_finding.h
         export.c
         export.h
+        colors.h
 )

@@ -18,7 +18,7 @@ Cubeset* rots_algorithm(const char *filename) {
     int n_len = read_int(file);
     // printf("Write N (f=*) cubes:\n");
     Cubeset N = cubeset_read(file, n_len, cube_length);
-
+    char** var_names = var_names_read(file, cube_length);
     fclose(file);
 
     Cubeset Z = EMPTY_SET; // union of all Z_i
@@ -229,7 +229,11 @@ Cubeset* rots_algorithm(const char *filename) {
     // set_print(&L);
 
     printf("\nE:\n");
-    cubeset_print(stdout, E);
+    // cubeset_print(stdout, E);
+    for (int i = 0; i < size(E); i++) {
+        cube_print(stdout, E[i], var_names);
+        printf("\n");
+    }
 
     printf("\nL_1:\n");
     cubeset_print(stdout, not_E_covered);

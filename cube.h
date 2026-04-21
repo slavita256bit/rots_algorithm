@@ -16,7 +16,7 @@ constexpr ull DEFAULT_MASK = 0x5555555555555555; // like ... 01 01 01 01
 */
 struct Cube {
     int n;
-    ull value; // todo: can be adopted to "inf" variables, currently max is 64/2=32
+    ull value; // todo: can be adopted to "inf" variables with list of "chunks", currently max is 64/2=32
 };
 typedef struct Cube Cube;
 
@@ -28,6 +28,7 @@ enum CubeValue {
     X = 2, // 10
     Y = 3, // 11
 };
+typedef enum CubeValue CubeValue;
 
 Cube cube_create(int n, ull combined_value);
 Cube cube_create_from_int(int n, int value);
@@ -50,4 +51,4 @@ bool cube_is_invalid(Cube a);
 int cube_cost(Cube cube);
 
 Cube cube_read(FILE *file, int n);
-void cube_print(FILE *file, Cube cube);
+void cube_print(FILE *file, Cube cube, char** var_names);

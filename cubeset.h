@@ -6,7 +6,7 @@ typedef Cube* Cubeset;
 
 // todo optimize contains (with # ?)
 #define cubeset_add(set, cube_exr) do {            \
-        Cube _cube = cube_exr;                     \
+        Cube _cube = (cube_exr);                   \
         if (cube_is_invalid(_cube)) break;         \
         if (cubeset_contains(set, _cube)) break;   \
         set_push_force(set, _cube);                \
