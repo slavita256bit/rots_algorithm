@@ -27,7 +27,7 @@ void export_csv(Cubeset ci, Cubeset** data, const char* test_path, int iteration
     mkdir(filename, 0777);
     strcat(filename + strlen(test_path) + 9, prefix);
     sprintf(filename + strlen(test_path) + strlen(prefix) + 9, "%02d", iteration);
-    char *filename_time_ptr = get_time_formated(filename + strlen(test_path) + strlen(prefix) + 9, now);
+    char *filename_time_ptr = get_time_formated(filename + strlen(test_path) + strlen(prefix) + 11, now);
     strcat(filename_time_ptr, ".csv");
     FILE *file = fopen(filename, "w");
 
